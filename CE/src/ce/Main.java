@@ -15,14 +15,17 @@ import java.util.Random;
  *
  * @author Manoel Afonso Filho
  */
-public class CE {
+public class Main {
     
     private static final Random r = new Random(System.currentTimeMillis());
+    
+    private static final double STDV = 0.05;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
         Individuo[] populacao = new Individuo[10];
         //cria os indivíduos aleatoriamente
         for (int i = 0; i < populacao.length; i++) {
@@ -30,19 +33,30 @@ public class CE {
         }
         //executa as 100 gerações do algoritmo
         for (int i = 0; i < 100; i++) {
-            populacao = geracao(populacao);
             System.out.println(getFittest(populacao).getFitness());
+            populacao = geracao(populacao);
         }
     }
     
+    public static double gaussiana(double dp, double media){
+        double gaussiana = r.nextGaussian();
+        if(gaussiana > 1){
+            gaussiana = 1;
+        } else if (gaussiana < 1){
+            gaussiana = 0;
+        }
+        gaussiana = gaussiana * dp + media;
+        return gaussiana;
+    }
+    
     public static Individuo[] geracao(Individuo[] populacao){
-        //Ordena por fitness (em ordem crescente)
+        //Ordena por fitness (em ordem decrescente)
         ArrayList<Individuo> melhores = new ArrayList<>();
         melhores.addAll(Arrays.asList(populacao));
         Collections.sort(melhores);
-
+        
         //Os cinco melhores são modificados.
-        for (int i = melhores.size() - 1; i >= melhores.size() - 5; i--) {
+        for (int i = 0; i < 5; i++) {
             alterar(melhores.get(i));
         }
         
@@ -54,12 +68,15 @@ public class CE {
         
         //Monta a nova população
         Individuo[] newpopulacao = new Individuo[10];
-        //Insere os novos 5
-        System.arraycopy(novos5, 0, newpopulacao, 0, 5);
         //Insere os modificados
-        for (int i = 5; i < newpopulacao.length; i++) {
+        for (int i = 0; i < 5; i++) {
             newpopulacao[i] = melhores.get(i);
         }
+        //Insere os novos 5
+        for (int i = 5; i < newpopulacao.length; i++) {
+            newpopulacao[i] = novos5[i-5];
+        }
+        
         return newpopulacao;
     }
     
@@ -73,12 +90,13 @@ public class CE {
         return maior;
     }
     
+    //Sorteia o novo gene até que ele fique no intervalo [0,1]
     public static void alterar(Individuo ind){
         double[] seq = ind.getSequencia();
-        //Posição a ser modificada (0 - 5).
+        //Posição a ser modificada (0 - 4).
         int pos = r.nextInt(seq.length);
-        seq[pos] = Math.abs(r.nextGaussian() * 0.3 + ind.getFitness());
-        seq[pos] = 1;
+        double newgene = gaussiana(STDV, seq[pos]);
+        seq[pos] = newgene;
         ind.calcularFitness();
     }
     

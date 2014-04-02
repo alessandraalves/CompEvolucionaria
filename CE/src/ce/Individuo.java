@@ -58,9 +58,9 @@ public class Individuo implements Comparable<Individuo> {
 
     @Override
     public int compareTo(Individuo o) {
-        if(this.fitness > o.getFitness()){
+        if(this.fitness < o.getFitness()){
             return 1;
-        } else if (this.fitness < o.getFitness()){
+        } else if (this.fitness > o.getFitness()){
             return -1;
         } else{
             return 0;
@@ -68,8 +68,13 @@ public class Individuo implements Comparable<Individuo> {
     }
 
     @Override
-    public String toString() {        
-        return  "f: " + this.fitness;
+    public String toString() {
+        String seq = "";
+        for (int i = 0; i < this.sequencia.length; i++) {
+            seq += this.sequencia[i] + " ";
+        }
+        
+        return  this.fitness + "";
     }
     
 }
